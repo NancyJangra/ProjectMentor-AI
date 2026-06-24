@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { TargetAndTransition } from "framer-motion";
-import { Lightbulb, GitBranch, Layers, Star, Bot, Mail, Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
+import { Lightbulb, GitBranch, Layers, Star, Bot, Loader2, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser-client";
 
 const FEATURES = [
@@ -140,16 +140,8 @@ function NeuralNetwork() {
 
 export function SignInScreen() {
   const reduced = useReducedMotion() ?? false;
-
-  const [authView, setAuthView] = useState<"options" | "email">("options");
-  const [emailMode, setEmailMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
 
   async function signInWithOAuth(provider: "google" | "github") {
     setLoading(true);
@@ -164,63 +156,6 @@ export function SignInScreen() {
       setLoading(false);
     }
   }
-
-  async function handleEmailAuth(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const supabase = createSupabaseBrowserClient();
-
-    if (emailMode === "signin") {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        setError(signInError.message);
-        setLoading(false);
-      }
-    } else {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: name } },
-      });
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-      } else {
-        setEmailSent(true);
-        setLoading(false);
-      }
-    }
-  }
-
-  function switchEmailMode(mode: "signin" | "signup") {
-    setEmailMode(mode);
-    setError(null);
-    setEmailSent(false);
-  }
-
-  function goBack() {
-    setAuthView("options");
-    setError(null);
-    setEmailSent(false);
-  }
-
-  const inputBase: React.CSSProperties = {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    outline: "none",
-  };
-
-  const inputFocusHandlers = {
-    onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
-      e.currentTarget.style.border = "1px solid rgba(99,102,241,0.65)";
-      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12)";
-    },
-    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
-      e.currentTarget.style.border = "1px solid rgba(255,255,255,0.1)";
-      e.currentTarget.style.boxShadow = "none";
-    },
-  };
 
   const buttonHover: TargetAndTransition = reduced ? {} : { y: -2, scale: 1.015 };
   const buttonTap: TargetAndTransition = reduced ? {} : { scale: 0.975 };
@@ -371,238 +306,65 @@ export function SignInScreen() {
             }}
           >
             <div className="mb-7">
-              <h2 className="text-2xl font-bold text-white">
-                {authView === "email"
-                  ? emailMode === "signin"
-                    ? "Sign in"
-                    : "Create account"
-                  : "Get started"}
-              </h2>
+              <h2 className="text-2xl font-bold text-white">Get started</h2>
               <p className="mt-1 text-sm" style={{ color: "#94A3B8" }}>
-                {authView === "email"
-                  ? emailMode === "signin"
-                    ? "Welcome back. Enter your credentials."
-                    : "Start your AI mentorship journey."
-                  : "Your AI project mentor awaits."}
+                Your AI project mentor awaits.
               </p>
             </div>
 
-            <AnimatePresence mode="wait">
-              {authView === "options" ? (
-                <motion.div
-                  key="options"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.22 }}
-                  className="flex flex-col gap-3"
-                >
-                  <OAuthButton
-                    onClick={() => signInWithOAuth("google")}
-                    disabled={loading}
-                    whileHover={buttonHover}
-                    whileTap={buttonTap}
-                  >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : <GoogleIcon />}
-                    Continue with Google
-                  </OAuthButton>
+            <div className="flex flex-col gap-3">
+              <OAuthButton
+                onClick={() => signInWithOAuth("google")}
+                disabled={loading}
+                whileHover={buttonHover}
+                whileTap={buttonTap}
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <GoogleIcon />}
+                Continue with Google
+              </OAuthButton>
 
-                  <OAuthButton
-                    onClick={() => signInWithOAuth("github")}
-                    disabled={loading}
-                    whileHover={buttonHover}
-                    whileTap={buttonTap}
-                  >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : <GitHubIcon />}
-                    Continue with GitHub
-                  </OAuthButton>
+              <OAuthButton
+                onClick={() => signInWithOAuth("github")}
+                disabled={loading}
+                whileHover={buttonHover}
+                whileTap={buttonTap}
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <GitHubIcon />}
+                Continue with GitHub
+              </OAuthButton>
+            </div>
 
-                  <Divider />
-
-                  <OAuthButton
-                    onClick={() => setAuthView("email")}
-                    whileHover={buttonHover}
-                    whileTap={buttonTap}
-                    muted
-                  >
-                    <Mail size={16} />
-                    Continue with Email
-                  </OAuthButton>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="email"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  {emailSent ? (
-                    <div
-                      className="rounded-2xl p-5 text-center"
-                      style={{
-                        background: "rgba(99,102,241,0.08)",
-                        border: "1px solid rgba(99,102,241,0.22)",
-                      }}
-                    >
-                      <div
-                        className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl"
-                        style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)" }}
-                      >
-                        <Mail size={19} className="text-white" />
-                      </div>
-                      <p className="font-semibold text-white">Check your inbox</p>
-                      <p className="mt-1.5 text-sm" style={{ color: "#94A3B8" }}>
-                        We sent a confirmation link to{" "}
-                        <span className="font-medium text-white">{email}</span>
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleEmailAuth} className="flex flex-col gap-4" noValidate>
-                      {emailMode === "signup" && (
-                        <label className="flex flex-col gap-1.5">
-                          <span className="text-xs font-medium" style={{ color: "#94A3B8" }}>
-                            Full name
-                          </span>
-                          <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Ada Lovelace"
-                            autoComplete="name"
-                            className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-[#475569] transition-all"
-                            style={inputBase}
-                            {...inputFocusHandlers}
-                          />
-                        </label>
-                      )}
-
-                      <label className="flex flex-col gap-1.5">
-                        <span className="text-xs font-medium" style={{ color: "#94A3B8" }}>
-                          Email address
-                        </span>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="you@example.com"
-                          autoComplete="email"
-                          required
-                          className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-[#475569] transition-all"
-                          style={inputBase}
-                          {...inputFocusHandlers}
-                        />
-                      </label>
-
-                      <label className="flex flex-col gap-1.5">
-                        <span className="text-xs font-medium" style={{ color: "#94A3B8" }}>
-                          Password
-                        </span>
-                        <div className="relative">
-                          <input
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder={emailMode === "signup" ? "At least 8 characters" : "••••••••"}
-                            autoComplete={emailMode === "signin" ? "current-password" : "new-password"}
-                            required
-                            minLength={emailMode === "signup" ? 8 : undefined}
-                            className="w-full rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-[#475569] transition-all"
-                            style={inputBase}
-                            {...inputFocusHandlers}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-100"
-                            style={{ color: "#94A3B8", opacity: 0.55 }}
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                          >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                        </div>
-                      </label>
-
-                      {error && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="rounded-xl px-4 py-2.5 text-sm"
-                          style={{
-                            background: "rgba(239,68,68,0.08)",
-                            border: "1px solid rgba(239,68,68,0.22)",
-                            color: "#FCA5A5",
-                          }}
-                        >
-                          {error}
-                        </motion.p>
-                      )}
-
-                      <motion.button
-                        type="submit"
-                        disabled={loading}
-                        whileHover={buttonHover}
-                        whileTap={buttonTap}
-                        className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white transition-all disabled:opacity-60"
-                        style={{
-                          background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-                          boxShadow: "0 4px 20px rgba(99,102,241,0.38)",
-                        }}
-                      >
-                        {loading ? (
-                          <Loader2 size={16} className="animate-spin" />
-                        ) : emailMode === "signin" ? (
-                          "Sign in"
-                        ) : (
-                          "Create account"
-                        )}
-                      </motion.button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          switchEmailMode(emailMode === "signin" ? "signup" : "signin")
-                        }
-                        className="text-center text-xs transition-colors hover:text-white"
-                        style={{ color: "#94A3B8" }}
-                      >
-                        {emailMode === "signin"
-                          ? "No account yet? Create one"
-                          : "Already have an account? Sign in"}
-                      </button>
-                    </form>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={goBack}
-                    className="mt-4 flex items-center gap-1 text-xs transition-colors hover:text-white"
-                    style={{ color: "#64748B" }}
-                  >
-                    ← All sign-in options
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {authView === "options" && (
-              <p className="mt-6 text-center text-xs" style={{ color: "#475569" }}>
-                By continuing, you agree to our{" "}
-                <span
-                  className="cursor-default underline decoration-dotted"
-                  style={{ color: "#64748B" }}
-                >
-                  Terms
-                </span>{" "}
-                &{" "}
-                <span
-                  className="cursor-default underline decoration-dotted"
-                  style={{ color: "#64748B" }}
-                >
-                  Privacy Policy
-                </span>
-              </p>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 rounded-xl px-4 py-2.5 text-sm"
+                style={{
+                  background: "rgba(239,68,68,0.08)",
+                  border: "1px solid rgba(239,68,68,0.22)",
+                  color: "#FCA5A5",
+                }}
+              >
+                {error}
+              </motion.p>
             )}
+
+            <p className="mt-6 text-center text-xs" style={{ color: "#475569" }}>
+              By continuing, you agree to our{" "}
+              <span
+                className="cursor-default underline decoration-dotted"
+                style={{ color: "#64748B" }}
+              >
+                Terms
+              </span>{" "}
+              &{" "}
+              <span
+                className="cursor-default underline decoration-dotted"
+                style={{ color: "#64748B" }}
+              >
+                Privacy Policy
+              </span>
+            </p>
           </div>
         </motion.div>
       </div>
@@ -616,14 +378,12 @@ function OAuthButton({
   disabled,
   whileHover,
   whileTap,
-  muted = false,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   whileHover?: TargetAndTransition;
   whileTap?: TargetAndTransition;
-  muted?: boolean;
 }) {
   return (
     <motion.button
@@ -636,23 +396,11 @@ function OAuthButton({
       style={{
         background: "rgba(255,255,255,0.06)",
         border: "1px solid rgba(255,255,255,0.1)",
-        color: muted ? "#94A3B8" : "#FFFFFF",
+        color: "#FFFFFF",
       }}
     >
       {children}
     </motion.button>
-  );
-}
-
-function Divider() {
-  return (
-    <div className="my-1 flex items-center gap-3">
-      <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
-      <span className="text-xs" style={{ color: "#475569" }}>
-        or
-      </span>
-      <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
-    </div>
   );
 }
 
