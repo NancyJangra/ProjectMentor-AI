@@ -81,6 +81,3 @@ supabase/
   add-auth.sql      # Auth migration (user_id column + RLS policies)
 ```
 
-## Deployment
-
-Deploy to [Vercel](https://vercel.com) with one click — just add the same environment variables from `.env.local` to your Vercel project settings.
