@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   Color tokens — space-separated RGB channel values.
+   Tailwind wraps them in rgb(var(--color-X) / alpha) so opacity
+   modifiers like bg-ink/80 or border-muted/10 continue to work.
+
+   Shadow tokens — full box-shadow strings.
+   Light mode uses neutral drop shadows; dark mode uses colored glows.
+   The shadow-glow / shadow-glow-sm / shadow-glow-md Tailwind utilities
+   reference these via tailwind.config.js so every hover:shadow-glow-sm
+   in the codebase automatically picks up the right style.
+
+   layout.tsx runs an inline script before React hydrates that reads
+   localStorage / prefers-color-scheme and adds the "dark" class to
+   <html> — so this swap is invisible on first paint.
+   ===================================================================== */
+
+:root {
+  /* Light palette */
+  --color-background: 245 245 250;
+  --color-surface:    255 255 255;
+  --color-ink:        21 21 29;
+  --color-muted:      107 114 128;
+  --color-accent:     124 92 255;
+  --color-accent-dark: 79 60 201;
+  --color-accent-soft: 237 234 255;
+  --color-accent-glow: 221 214 255;
+  --color-warning:    217 119 6;
+  --color-success:    21 128 61;
+
+  /* Neutral shadows for light mode */
+  --shadow-glow:    0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-glow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-glow-md: 0 6px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-score-ring: 0 2px 12px rgba(124, 92, 255, 0.15);
+}
+
+.dark {
+  /* Dark palette */
+  --color-background: 10 10 15;
+  --color-surface:    21 21 29;
+  --color-ink:        244 244 248;
+  --color-muted:      138 138 153;
+  --color-accent:     124 92 255;
+  --color-accent-dark: 90 63 214;
+  --color-accent-soft: 30 26 46;
+  --color-accent-glow: 42 31 92;
+  --color-warning:    249 115 22;
+  --color-success:    34 197 94;
+
+  /* Colored glows for dark mode */
+  --shadow-glow:    0 0 24px rgba(124, 92, 255, 0.35), 0 0 48px rgba(124, 92, 255, 0.12);
+  --shadow-glow-sm: 0 0 12px rgba(124, 92, 255, 0.28);
+  --shadow-glow-md: 0 0 20px rgba(124, 92, 255, 0.32), 0 0 40px rgba(124, 92, 255, 0.1);
+  --shadow-score-ring: 0 0 28px rgba(124, 92, 255, 0.45);
+}
+
+/* Hero glow blob gradient: faint in light, vivid in dark. */
+.hero-glow-blob {
+  background: radial-gradient(circle, rgba(124, 92, 255, 0.06) 0%, transparent 70%);
+}
+.dark .hero-glow-blob {
+  background: radial-gradient(circle, rgba(124, 92, 255, 0.22) 0%, transparent 70%);
+}
+
+/* ===================================================================== */
+
+body {
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-ink));
+  font-family: var(--font-body, ui-sans-serif, system-ui, sans-serif);
+}
+
+/* Visible keyboard focus outline, matched to the accent color. */
+:focus-visible {
+  outline: 2px solid #7c5cff;
+  outline-offset: 2px;
+}
+
+/* =====================================================================
+   Print styles — applied only when the user prints or exports to PDF.
+
+   Goals:
+   - White/light background so printing the dark UI doesn't waste ink.
+   - Dark, readable text at a comfortable body size.
+   - Strip every glow, shadow, and border-radius: paper is flat.
+   - Keep the colored left-border accents on section cards (they print
+     well and help structure the document).
+   - Keep the SVG score ring colored (purple on white looks fine).
+   - break-inside: avoid on each <section> so a card isn't split across
+     two pages.
+   - Hide all interactive chrome: nav, tabs, forms, buttons, search.
+   ===================================================================== */
+@media print {
+  /* ---- Page margins ------------------------------------------------- */
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* ---- Base ---------------------------------------------------------- */
+  body {
+    font-size: 11pt;
+    background-color: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  /* ---- Surface / background overrides ------------------------------- */
+  /* Card surfaces */
+  .bg-surface { background-color: #ffffff !important; }
+
+  /* bg-accentSoft: used for the follow-up practice box and callouts */
+  .bg-accentSoft { background-color: #f5f4ff !important; }
+
+  /* bg-background: used for progress bar tracks and weakness sub-cards.
+     NOT the page background (that comes from body above). */
+  .bg-background { background-color: #f3f4f6 !important; }
+
+  /* Divider lines and other very faint muted backgrounds */
+  .bg-muted\/10 { background-color: #e9eaeb !important; }
+
+  /* ---- Text colors -------------------------------------------------- */
+  .text-ink     { color: #111111 !important; }
+  .text-muted   { color: #4b4b5a !important; }
+  .text-accent  { color: #5a3fd6 !important; }
+  .text-success { color: #15803d !important; }
+  .text-warning { color: #c2410c !important; }
+
+  /* Slash-opacity variants used in a few places */
+  .text-muted\/60 { color: #6b6b7a !important; }
+  .text-ink\/70   { color: #3a3a44 !important; }
+
+  /* ---- Border colors ------------------------------------------------- */
+  /* Make the very faint card borders visible on white paper */
+  .border-muted\/10 { border-color: #d1d5db !important; }
+  .border-muted\/25 { border-color: #c0c4cb !important; }
+  .border-muted\/30 { border-color: #bdc1c8 !important; }
+
+  /* ---- SVG score ring ------------------------------------------------ */
+  /* Track: near-invisible on dark screen → light gray on paper */
+  .stroke-muted\/20 { stroke: #d1d5db !important; }
+  /* Progress arc: keep the accent purple (prints clearly) */
+  .stroke-accent    { stroke: #5a3fd6 !important; }
+
+  /* ---- Flatten everything for paper --------------------------------- */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  * {
+    border-radius: 0 !important;
+  }
+
+  /* ---- Page breaks --------------------------------------------------- */
+  /* Keep each results card on one page where possible */
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid; /* legacy prefix for older print engines */
+    margin-bottom: 1em;
+  }
+
+  /* The space-y-4 group wrappers also shouldn't orphan mid-card */
+  .space-y-4 > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ---- Links --------------------------------------------------------- */
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}

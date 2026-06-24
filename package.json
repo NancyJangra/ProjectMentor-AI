@@ -1,0 +1,36 @@
+{
+  "name": "projectmentor-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "adm-zip": "^0.5.17",
+    "framer-motion": "^12.41.0",
+    "js-tiktoken": "^1.0.21",
+    "lucide-react": "^1.21.0",
+    "mammoth": "^1.8.0",
+    "next": "^16.2.9",
+    "openai": "^6.44.0",
+    "pdfjs-dist": "^6.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.0"
+  }
+}
