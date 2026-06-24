@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import type { TargetAndTransition } from "framer-motion";
 import { Lightbulb, GitBranch, Layers, Star, Bot, Loader2, Sparkles } from "lucide-react";
@@ -142,6 +143,7 @@ export function SignInScreen() {
   const reduced = useReducedMotion() ?? false;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const authError = useSearchParams().get("auth_error");
 
   async function signInWithOAuth(provider: "google" | "github") {
     setLoading(true);
@@ -334,7 +336,7 @@ export function SignInScreen() {
               </OAuthButton>
             </div>
 
-            {error && (
+            {(error ?? authError) && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -345,7 +347,7 @@ export function SignInScreen() {
                   color: "#FCA5A5",
                 }}
               >
-                {error}
+                {error ?? authError}
               </motion.p>
             )}
 
