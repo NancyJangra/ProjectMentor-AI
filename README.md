@@ -1,5 +1,7 @@
 # ProjectMentor AI
 
+Check it out at [ProjectMentor AI](https://projectmentor-ai-full.vercel.app/)
+
 A Next.js app that analyzes your projects and prepares you for technical interviews. Upload a resume, drop a GitHub repo URL, or zip up a codebase — the app generates interview questions, readiness scores, weakness analysis, resume bullets, and a semantic project library you can search across.
 
 ## Features
