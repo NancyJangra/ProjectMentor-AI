@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { SUPABASE_URL_PRIVATE, SUPABASE_SERVICE_ROLE_KEY } from "./env";
 
 let cachedSupabaseClient: SupabaseClient | null = null;
 
@@ -7,15 +8,12 @@ export function getSupabaseClient(): SupabaseClient {
     return cachedSupabaseClient;
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
+  if (!SUPABASE_URL_PRIVATE || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
       "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must both be set. Add them to your .env.local file (see .env.local.example)."
     );
   }
 
-  cachedSupabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+  cachedSupabaseClient = createClient(SUPABASE_URL_PRIVATE, SUPABASE_SERVICE_ROLE_KEY);
   return cachedSupabaseClient;
 }
